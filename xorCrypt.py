@@ -1,5 +1,6 @@
 import os
 
+#Encrypts the contents of a file, or, if it has already been encrypted, decrypts it.
 def encryptDecrypt(initial, key):
     final = bytearray()
     keyIndex = 0
@@ -11,6 +12,7 @@ def encryptDecrypt(initial, key):
 
     return final
 
+#Finds all files in a directory structure
 def getFiles(folder):
     files = []
     for file in os.listdir(folder):
@@ -22,28 +24,39 @@ def getFiles(folder):
 
     return files
 
-path = input("File to encrypt: ")
+path = input("File or directory to encrypt/decrypt: ")
 
-key = input("Key: ")
-if input("Verify key: ") != key:
-    raise Exception("Key mismatch")
+while not os.path.exists(path):
+    print("Invalid path.")
+    path = input("File or directory to encrypt/decrypt: ")
+
+verified = False
+
+while not verified:
+    key = input("Key: ")
+    if input("Verify key: ") != key:
+        print("Keys do not match, try again.")
+    else:
+        verified = True
 
 rawKey = key
 key = bytearray(key, "ascii")
 
+#If the user entered the path to a file, perform the encryption operation on that file
 if os.path.isfile(path):
     file = open(path, "rb")
     data = file.read()
     file.close()
 
 
-    if input("Your key is: " + rawKey + ". Continue? (y/n) ") == 'y':
+    if input("Your key is: " + rawKey + ". Continue? (y/n) ") == 'y': #Verify that the user wants to proceed
         file = open(path, "wb")
         file.write(encryptDecrypt(data, key))
         file.close()
 
+#If the user entered the path to a directory, find all subfiles and apply the encryption operation
 elif os.path.isdir(path):
-    if input("Your key is: " + rawKey + ". Continue? (y/n) ") == 'y':
+    if input("Your key is: " + rawKey + ". Continue? (y/n) ") == 'y': #Verify that the user wants to proceed
         for filename in getFiles(path):
             file = open(filename, "rb")
             data = file.read()
