@@ -1,7 +1,7 @@
-import os
+import os, hashing
 
 #Encrypts the contents of a file, or, if it has already been encrypted, decrypts it.
-def encryptDecrypt(initial, key):
+def encrypt_decrypt(initial, key):
     final = bytearray()
     keyIndex = 0
     for byte in initial:
@@ -13,13 +13,13 @@ def encryptDecrypt(initial, key):
     return final
 
 #Finds all files in a directory structure
-def getFiles(folder):
+def get_files(folder):
     files = []
     for file in os.listdir(folder):
         if os.path.isfile(folder+"/"+file):
             files.append(folder+"/"+file)
         elif os.path.isdir(folder+"/"+file):
-            for f in getFiles(folder+"/"+file):
+            for f in get_files(folder+"/"+file):
                 files.append(f)
 
     return files
@@ -39,8 +39,9 @@ while not verified:
     else:
         verified = True
 
-rawKey = key
-key = bytearray(key, "ascii")
+raw_key = key
+#key = bytearray(key, "ascii")
+key = hashing.hash_key(key)
 
 #If the user entered the path to a file, perform the encryption operation on that file
 if os.path.isfile(path):
@@ -49,19 +50,19 @@ if os.path.isfile(path):
     file.close()
 
 
-    if input("Your key is: " + rawKey + ". Continue? (y/n) ") == 'y': #Verify that the user wants to proceed
+    if input("Your key is: " + raw_key + ". Continue? (y/n) ") == 'y': #Verify that the user wants to proceed
         file = open(path, "wb")
-        file.write(encryptDecrypt(data, key))
+        file.write(encrypt_decrypt(data, key))
         file.close()
 
 #If the user entered the path to a directory, find all subfiles and apply the encryption operation
 elif os.path.isdir(path):
-    if input("Your key is: " + rawKey + ". Continue? (y/n) ") == 'y': #Verify that the user wants to proceed
-        for filename in getFiles(path):
+    if input("Your key is: " + raw_key + ". Continue? (y/n) ") == 'y': #Verify that the user wants to proceed
+        for filename in get_files(path):
             file = open(filename, "rb")
             data = file.read()
             file.close()
 
             file = open(filename, "wb")
-            file.write(encryptDecrypt(data, key))
+            file.write(encrypt_decrypt(data, key))
             file.close()
